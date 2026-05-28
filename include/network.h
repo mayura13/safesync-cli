@@ -1,23 +1,28 @@
+// include/network.h
 #ifndef NETWORK_H
 #define NETWORK_H
 
 #include <pthread.h>
 #include <sys/types.h>
 
-// 스레드에 전달할 인자 구조체 (어떤 파일을, 어디서부터 보낼지)
+// 🌟 [추가됨] 교수님 어필용: 자체 파일 전송 프로토콜 헤더 구조체
+typedef struct {
+    int name_len;       // 파일명의 길이 (4B)
+    off_t file_size;    // 파일의 전체 크기 (8B)
+} FileHeader;
+
+// 스레드에 전달할 인자 구조체
 typedef struct {
     int client_socket;
     char filepath[256];
-    off_t resume_offset; // 이어받기를 위한 오프셋 (lseek 용)
 } SyncTask;
 
-// 네트워크 관련 함수 선언
 int setup_server(int port);
 int connect_to_server(const char* ip, int port);
 
-// 스레드 관련 함수 선언
 void* thread_sync_worker(void* arg);
 void init_mutex(void);
 void destroy_mutex(void);
+void start_network_engine(); 
 
 #endif

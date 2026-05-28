@@ -5,6 +5,7 @@
 #include "../include/watcher.h"
 #include "../include/signals.h"
 #include "../include/queue.h"
+#include "../include/network.h"
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -18,6 +19,8 @@ int main(int argc, char *argv[]) {
 
     // 2. 전송 대기열(Queue) 초기화
     init_queue();
+
+    start_network_engine();
 
     // canonical 절대 경로 변환 실행
     char resolved_path[PATH_MAX];
