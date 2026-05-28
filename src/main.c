@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "../include/watcher.h"
 #include "../include/signals.h"
+#include "../include/queue.h"
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
