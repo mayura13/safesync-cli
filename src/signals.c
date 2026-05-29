@@ -9,7 +9,6 @@
 
 int g_shutdown_requested = 0;
 
-// 로그 파일에 안전하게 기록을 저장하는 함수
 void write_sync_log(const char *message) {
     FILE *log_file = fopen("sync.log", "a");
     if (log_file == NULL) {
@@ -29,7 +28,6 @@ void write_sync_log(const char *message) {
     fclose(log_file);
 }
 
-// ① Ctrl+C (SIGINT) 핸들러: Graceful Shutdown
 void handle_sigint(int sig) {
     printf("\n\n=========================================\n");
     printf("[Signal] Ctrl+C (SIGINT) 감지!\n");
@@ -41,14 +39,12 @@ void handle_sigint(int sig) {
     g_shutdown_requested = 1;
     write_sync_log("SafeSync 시스템이 사용자에 의해 정상적으로 Graceful Shutdown 되었습니다.");
 
-    // 안전하게 자원을 회수하고 정돈할 수 있도록 임시 대기
     sleep(1);
     
     printf("[System] 모든 작업 처리 완료. 프로그램을 안전하게 닫습니다.\n");
     exit(0);
 }
 
-// ② SIGUSR1 핸들러: 현재 가동 중인 스레드들의 세부 진행 상황 출력
 void handle_sigusr1(int sig) {
     printf("\n==================================================\n");
     printf("📊 [SafeSync 실시간 스레드 진행 상황 리포트]\n");
@@ -64,7 +60,6 @@ void handle_sigusr1(int sig) {
             printf("  - 파일명: %s\n", g_worker_statuses[i].current_file);
             printf("  - 진행률: [");
             
-            // 20칸 기준 그래프 그리기
             int bars = g_worker_statuses[i].progress_percent / 5;
             for (int j = 0; j < 20; j++) {
                 if (j < bars) printf("=");
@@ -84,12 +79,11 @@ void handle_sigusr1(int sig) {
     fflush(stdout);
 }
 
-// 시스템 시그널 바인딩 활성화
 void setup_signal_handlers() {
     struct sigaction sa_int;
     struct sigaction sa_usr1;
+    struct sigaction sa_pipe;
 
-    // SIGINT (Ctrl+C) 바인딩
     sa_int.sa_handler = handle_sigint;
     sigemptyset(&sa_int.sa_mask);
     sa_int.sa_flags = 0;
@@ -98,12 +92,19 @@ void setup_signal_handlers() {
         exit(1);
     }
 
-    // SIGUSR1 바인딩
     sa_usr1.sa_handler = handle_sigusr1;
     sigemptyset(&sa_usr1.sa_mask);
     sa_usr1.sa_flags = 0;
     if (sigaction(SIGUSR1, &sa_usr1, NULL) == -1) {
         perror("[Error] SIGUSR1 핸들러 등록 실패");
+        exit(1);
+    }
+
+    sa_pipe.sa_handler = SIG_IGN;
+    sigemptyset(&sa_pipe.sa_mask);
+    sa_pipe.sa_flags = 0;
+    if (sigaction(SIGPIPE, &sa_pipe, NULL) == -1) {
+        perror("[Error] SIGPIPE 무시 등록 실패");
         exit(1);
     }
 
