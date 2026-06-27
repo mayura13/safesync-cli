@@ -239,4 +239,4 @@ cat sync.log
 [2026-06-19 21:35:45] SafeSync 시스템이 사용자에 의해 정상적으로 Graceful Shutdown 되었습니다.
 
 
-타임스탬프와 함께 시스템 기동 사건과 우아한 정상 종료(Graceful Shutdown) 사건이 순차적으로 추적되어 기록됩니다.
+타임스탬프와 함께 시스템 기동 사건과 Graceful Shutdown이 순차적으로 추적되어 기록됩니다.
